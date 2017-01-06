@@ -1,18 +1,19 @@
 var http = require('http');
 var cluster = require('cluster'); // Only required if you want the worker id
 var sticky = require('sticky-session');
-var WebSocketServer = require('ws').Server;
 var app = require('../app'); //Require our app
 
 var server = http.createServer(app);
 var clientId = 0;
 
-if (!sticky.listen(server, 8000, {
+var port = 8000;
+
+if (!sticky.listen(server, port, {
     workers: 3
 })) {
-    // Master code
+    // Master code    
     server.once('listening', function() {
-        console.log('server started on port ' + 8000);
+        console.log('server started on port %d', port);
     });
     
     cluster.on('online', function(worker) {
@@ -21,26 +22,24 @@ if (!sticky.listen(server, 8000, {
 
     cluster.on('exit', function(worker, code, signal) {
         console.log('Worker ' + worker.process.pid + ' died with code: ' + code + ', and signal: ' + signal);
-        console.log('Starting a new worker');
     });
 } else {
     // Worker code
-    var wss = new WebSocketServer({server: server});
-    wss.on('connection', function (ws) {
-        var thisId = ++clientId;
-        console.log('Client #%d connected, worker: #%d', thisId, cluster.worker.id);
-        
-        ws.on('message', function (data, flags) {
-            console.log("Worker: #%d, Receive a message: %s, flags: %s", cluster.worker.id, data, JSON.stringify(flags));
-            ws.send(data);
-        });
-        
-        ws.on('close', function () {
-            console.log('Client #%d disconnected, worker: #%d', thisId, cluster.worker.id);
-        });
-        
-        ws.on('error', function (e) {
-            console.log('Client #%d error: %s, worker: #%d', thisId, e.message, cluster.worker.id);
+    var io = require("socket.io").listen(server);
+    var redis = require('socket.io-redis');
+    io.adapter(redis({ host: 'localhost', port: 10001 }));
+    
+    io.on('connection', function (socket) {
+        console.log("WS connection is accepted by worker #" + process.pid);
+        socket.on('new message', function (data) {
+            // we tell the client to execute 'new message'
+            /*socket.broadcast.emit('new message', {
+                username: socket.username,
+                message: data
+            });*/
+            console.log("Receive message: " + data);
+            var ioe = require('socket.io-emitter')({ host: 'localhost', port: 10001 });
+            ioe.emit('new message', "Server -- " + data);
         });
     });
 }

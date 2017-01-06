@@ -20,4 +20,6 @@ app.use(bodyParser.urlencoded());
 app.use(express.static(__dirname + '/public'));
 app.use('/api', movies); //This is our route middleware
 
+
+
 module.exports = app;
