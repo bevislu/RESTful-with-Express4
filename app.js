@@ -17,8 +17,9 @@ mongoose.connect(connectionString);
 //configure body-parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
-app.use(express.static(__dirname + '/public'));
 app.use('/api', movies); //This is our route middleware
+app.use('/libs', express.static(__dirname + '/node_modules'));
+app.use(express.static(__dirname + '/public'));
 
 
 
