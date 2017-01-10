@@ -26,6 +26,10 @@
             console.log(data);
         });
         
+        socket.on('user disconnect', function () {
+            console.log("A user is disconnected.");
+        });
+        
         document.getElementById("input").addEventListener('keydown', function(e) {
             if (e.keyCode === 13) {
                 socket.emit('new message', this.value);

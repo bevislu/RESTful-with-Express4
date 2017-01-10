@@ -41,5 +41,11 @@ if (!sticky.listen(server, port, {
             var ioe = require('socket.io-emitter')({ host: 'localhost', port: 10001 });
             ioe.emit('new message', "Server -- " + data);
         });
+        
+        socket.on('disconnect', function () {
+            console.log("==a user disconnected==");
+            var ioe = require('socket.io-emitter')({ host: 'localhost', port: 10001 });
+            ioe.emit('user disconnect');
+        });
     });
 }
