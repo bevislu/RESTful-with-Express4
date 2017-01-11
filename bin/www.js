@@ -38,8 +38,8 @@ if (!sticky.listen(server, port, {
                 message: data
             });*/
             console.log("Receive message: " + data);
-            var ioe = require('socket.io-emitter')({ host: 'localhost', port: 10001 });
-            ioe.emit('new message', "Server -- " + data);
+            //var ioe = require('socket.io-emitter')({ host: 'localhost', port: 10001 });
+            //ioe.emit('new message', "Server -- " + data);
         });
         
         socket.on('disconnect', function () {

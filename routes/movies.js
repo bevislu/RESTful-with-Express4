@@ -20,6 +20,8 @@ router.route('/movies')
         return res.send(err);
       }
 
+      var ioe = require('socket.io-emitter')({ host: 'localhost', port: 10001 });
+      ioe.emit('new message', "A new movie [" + movie._id + "] is added.");
       res.send({ message: 'Movie Added', processId: process.pid });
     });
   });
